@@ -1,0 +1,38 @@
+services:
+  app-db:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: appDB
+    ports:
+      - "3306"
+    networks:
+      - local-network
+    volumes:
+      - app-db-data:/var/lib/mysql
+    restart: always
+
+  app:
+    depends_on:
+      - app-db
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: app-db
+      DB_USER: root
+      DB_PASS: root
+      DB_NAME: appDB
+    ports:
+      - "53000:3000"
+    networks:
+      - local-network
+
+networks:
+  local-network:
+    name: app-network
+    driver: bridge
+
+volumes:
+  app-db-data:
+    driver: local
